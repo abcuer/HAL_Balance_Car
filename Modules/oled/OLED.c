@@ -349,12 +349,9 @@ void OLED_ShowFloat(uint8_t Line, uint8_t Column, float Number,
   */
 void OLED_Init(void)
 {
-    // 延时等待OLED上电稳定
-    delay_ms(100);
-    
     // 初始化I2C总线
     IICInit(&oled_bus);
-    delay_ms(1);  
+    delay_ms(5);  
 
     // SSD1306初始化序列
     OLED_WriteCommand(0xAE);    // 关闭显示
@@ -395,7 +392,7 @@ void OLED_Init(void)
 
     OLED_WriteCommand(0xAF);    // 开启显示
     
-    delay_ms(10);
+    delay_ms(5);
     
     OLED_Clear();               // OLED清屏
 }
