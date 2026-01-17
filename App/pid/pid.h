@@ -21,9 +21,9 @@ typedef struct
 
 }PID_t;
 
-void pid_init(PID_t *pid, uint32_t mode, float p, float i, float d);
-void pid_cal(PID_t *pid);
-void pidout_limit(PID_t *pid);
+void PID_Init(PID_t *pid, uint32_t mode, float p, float i, float d);
+void PidCalucate(PID_t *pid);
+void PidOutLimit(PID_t *pid);
 
 #endif
 

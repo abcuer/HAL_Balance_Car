@@ -1,4 +1,5 @@
 #include "headfile.h"
+#include "led.h"
 
 static SoundLight_t sound_light = {
 	.flag = 0, // 声光提示激活标志：1 表示正在进行声光报警，如避障蜂鸣器提醒；0 表示无报警
@@ -12,13 +13,16 @@ static SoundLight_t sound_light = {
  */
 void System_Init(void)
 {
-  MPU_Init();
-  motor_init();
-  encoder_init();
-  OLED_Init();
-  HCSR04_Init();
-  bt_init();
-  pid_init(&dist, POSITION_PID, -0.18, -0.18/200, 0);
+    LedDeviceInit();
+    BeepDeviceInit();
+    KeyDeviceInit();
+    MPU_Init();
+    Motor_Init();
+    Encoder_Init();
+    OLED_Init();
+    HCSR04_Init();
+    HC06_Init();
+    PID_Init(&dist, POSITION_PID, -0.18, -0.18/200, 0);
 }
 
 /**
@@ -30,8 +34,8 @@ void SoundLight(void)
 {
 	if(sound_light.flag == 0)
 	{
-		Buzzer_ON();
-		Follow_ON();
+        SetLed(LED_FOLLOW, LED_ON);
+		SetBeep(BEEP_MAIN, BEEP_ON);
 		sound_light.flag = 1;
 	}
 }
@@ -49,8 +53,8 @@ void UpdateSoundLight(void)
 
 		if(sound_light.time >= 20) 
 		{
-			Buzzer_OFF();
-			Follow_OFF();
+            SetLed(LED_FOLLOW, LED_OFF);
+			SetBeep(BEEP_MAIN, BEEP_OFF);
 			sound_light.time = 0;
 			sound_light.flag = 0; 
 		}
@@ -58,17 +62,3 @@ void UpdateSoundLight(void)
     }
 }
 
-void OLED_Task(void)
-{
-    static uint8_t cnt = 0;
-    if (++cnt < 50) return;   // 100Hz / 10 = 10Hz
-    cnt = 0;
-    if(balance_state.mode == 1 || balance_state.mode == 2)
-    {
-        OLED_ShowSignedNum(3, 5, distance, 3);
-    }
-    else if(balance_state.mode == 0)
-    {
-        OLED_ClearLine_Fast(3);
-    }
-}

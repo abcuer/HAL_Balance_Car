@@ -19,8 +19,8 @@ typedef struct
     uint8_t flag;
 } RX_DATA_t;
 
-void Bluetooth(void);
-void bt_init(void);
+void HC06_Init(void);
+void BlueTooth(void);
 
 extern uint8_t mode;  
 

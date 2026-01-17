@@ -8,11 +8,9 @@ typedef struct{
 	int16_t encoder;
 } Motor_t;
 
-void motor_init(void);
-void angle_left_duty(int16_t duty);
-void angle_right_duty(int16_t duty);
-void motor_duty(int16_t dutyL, int16_t dutyR);
-void stop(void);
+void Motor_Init(void);
+void MotorSetDuty(int16_t dutyL, int16_t dutyR);
+void MotorStop(void);
 
 extern Motor_t motor_left;
 extern Motor_t motor_right;

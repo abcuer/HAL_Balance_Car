@@ -57,8 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Buzzer_Pin GPIO_PIN_13
-#define Buzzer_GPIO_Port GPIOC
+#define BEEP_Pin GPIO_PIN_13
+#define BEEP_GPIO_Port GPIOC
 #define ECHO_Pin GPIO_PIN_14
 #define ECHO_GPIO_Port GPIOC
 #define TRIG_Pin GPIO_PIN_15

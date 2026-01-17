@@ -1,10 +1,8 @@
 #ifndef __OLED_H
 #define __OLED_H
 
-#include "stm32f1xx_hal.h"
 #include "stdint.h"
 #include "bsp_iic.h"
-#include "hc_sr04.h"
 
 // OLED I2C地址（7位地址，需要左移1位）
 #define OLED_I2C_ADDR    0x78    // 0x3C左移1位

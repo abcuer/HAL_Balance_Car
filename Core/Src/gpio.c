@@ -51,7 +51,7 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, Buzzer_Pin|TRIG_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, BEEP_Pin|TRIG_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, Left_IN1_Pin|Left_IN2_Pin, GPIO_PIN_RESET);
@@ -61,12 +61,12 @@ void MX_GPIO_Init(void)
                           |OLED_SCL_Pin|OLED_SDA_Pin|Follow_Pin|BlueTooth_Pin
                           |Balance_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : Buzzer_Pin */
-  GPIO_InitStruct.Pin = Buzzer_Pin;
+  /*Configure GPIO pin : BEEP_Pin */
+  GPIO_InitStruct.Pin = BEEP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(Buzzer_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(BEEP_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ECHO_Pin */
   GPIO_InitStruct.Pin = ECHO_Pin;

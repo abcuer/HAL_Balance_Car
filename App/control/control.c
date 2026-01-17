@@ -41,15 +41,15 @@ PID_t dist;
 static float Encoder_Err, filtered_Err, last_filtered_Err, Encoder_S;
 
 /* 机械中值，当前角度， gy*/
-float angle_pid_control(float tar, float angle, short gy)
+float AnglePidCtrl(float tar, float angle, short gy)
 {
 	return upright_pid.kp * (tar - angle) - upright_pid.kd * gy;
 }
 
-float speed_pid_control(float x, float speed_tar)
+float SpeedPidCtrl(float x, float speed_tar)
 {
 	float pwm_out;
-	UpdateEncoderCounts();
+	UpdateEncoder();
 	Encoder_Err = (motor_left.encoder + motor_right.encoder) - speed_tar;;
 	filtered_Err = (1-x)*Encoder_Err + x*last_filtered_Err;
 	last_filtered_Err = filtered_Err;
@@ -65,7 +65,7 @@ float speed_pid_control(float x, float speed_tar)
 	return pwm_out;
 }
 
-float turn_pid_control(short gz) 
+float TurnPidCtrl(short gz) 
 {
 	return turn_pid.kp * turn_pid.speed - turn_pid.kd * gz;
 }
@@ -78,12 +78,12 @@ void Limit(float PWMA, float PWMB)
 	if(PWMB < -limit) PWMB = -limit;
 }
 
-void dist_pid_control(void)
+void DistPidCtrl(void)
 {
 	dist.target = 70;
 	dist.now = distance;
-	pid_cal(&dist);
-	pidout_limit(&dist);
+	PidCalucate(&dist);
+	PidOutLimit(&dist);
 	speed_pid.speed = dist.out;
 }
 

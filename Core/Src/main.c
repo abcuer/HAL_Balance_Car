@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "OLED.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -26,7 +25,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "headfile.h"
-#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,9 +109,9 @@ int main(void)
     {
       MPU_Get_Angle(&mpu);
     	Balance();													  // 主控制逻辑
-    	checkLiftState();  										// 提起检测
-    	checkFallDown();											// 倒地检测
-    	detectPutDown(); 											// 着陆检测
+    	CheckLiftState();  										// 提起检测
+    	CheckFallDown();											// 倒地检测
+    	DetectPutDown(); 											// 着陆检测
       ModeSelect();                         // 模式切换   
     	mpu_data_flag = 0;
     }

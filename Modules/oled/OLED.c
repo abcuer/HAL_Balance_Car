@@ -1,5 +1,5 @@
-#include "OLED.h"
-#include "OLED_Font.h"
+#include "oled.h"
+#include "oled_font.h"
 #include "bsp_delay.h"
 
 // 定义OLED的I2C总线结构体
@@ -355,7 +355,7 @@ void OLED_Init(void)
 
     // SSD1306初始化序列
     OLED_WriteCommand(0xAE);    // 关闭显示
-    
+
     OLED_WriteCommand(0xD5);    // 设置显示时钟分频比/振荡器频率
     OLED_WriteCommand(0x80);
     

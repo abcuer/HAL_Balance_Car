@@ -12,9 +12,9 @@
 
 void Balance(void);
 void ModeSelect(void);
-void checkLiftState(void);
-void detectPutDown(void);
-void checkFallDown(void);
+void CheckLiftState(void);
+void DetectPutDown(void);
+void CheckFallDown(void);
 void ObstacleAvoid(void);
 typedef struct{
 	uint8_t flag;

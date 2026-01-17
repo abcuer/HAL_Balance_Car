@@ -15,7 +15,7 @@
 /***************** Modules ****************/
 #include "led.h"
 #include "key.h"
-#include "buzzer.h"
+#include "beep.h"
 #include "oled.h"
 #include "mpu6050.h"
 #include "motor.h"
@@ -31,6 +31,5 @@
 /************************ 标志位 *********************/
 
 /************************ 全局变量 *********************/
-//extern uint16_t Time;
 
 #endif

@@ -1,4 +1,5 @@
 #include "headfile.h"
+#include "led.h"
 #include <stdlib.h>
 
 BalanceState_t balance_state = {
@@ -20,7 +21,7 @@ static float pwm_out, PWMA, PWMB = 0;
 void ModeSelect(void)
 {
 	static uint8_t last_mode = 0xFF;  
-	if(Key_GetNum())
+	if(Key_GetNum(KEY_USER))
 	{
 		balance_state.mode++;
 		balance_state.mode %= 3;
@@ -37,30 +38,30 @@ void ModeSelect(void)
 		speed_pid.kp = 0.7;
 		speed_pid.ki = 0.7/200;
 		// turn_pid.kd = -0.25;
-		Balance_ON(); 
+   		SetLed(LED_BALANCE, LED_ON);        
 	}
-	else Balance_OFF();  
+	else SetLed(LED_BALANCE, LED_OFF);  
 	if(balance_state.mode == 1)  // 遥控模式
 	{
 		speed_pid.kp = 0.7;
 		speed_pid.ki = 0;
 		// turn_pid.kd = 0;
-		BlueTooth_ON();
+		SetLed(LED_BLUETOOTH, LED_ON); 
 		ObstacleAvoid();	
 	}
-	else BlueTooth_OFF();
+	else SetLed(LED_BLUETOOTH, LED_OFF);
 	if(balance_state.mode == 2)	// 超声波跟随										
 	{
 		speed_pid.kp = 0.7;
 		speed_pid.ki = 0.7/200;
 		// turn_pid.kd = -0.25;
-		Follow_ON(); 
+		SetLed(LED_FOLLOW, LED_ON);  
 		HCSR04_GetValue();
-		if(distance > 0 && distance <= 250)	dist_pid_control(); 
+		if(distance > 0 && distance <= 250)	DistPidCtrl(); 
 		else	speed_pid.speed = 0;  
 		// 停止移动，避免无效距离导致继续前进
 	}
-	else Follow_OFF(); 
+	else SetLed(LED_FOLLOW, LED_OFF);  
 }	
 
 /**
@@ -72,15 +73,15 @@ void Balance(void)
 {
 	if (balance_state.balance_enable) 					// 默认平衡模式
 	{
-		upright_pid.out = angle_pid_control(upright_pid.med_angle, mpu.pitch, mpu.gyroyReal);
-		speed_pid.out = speed_pid_control(speed_pid.filter, speed_pid.speed);
-		turn_pid.out = turn_pid_control(mpu.gyrozReal);
+		upright_pid.out = AnglePidCtrl(upright_pid.med_angle, mpu.pitch, mpu.gyroyReal);
+		speed_pid.out = SpeedPidCtrl(speed_pid.filter, speed_pid.speed);
+		turn_pid.out = TurnPidCtrl(mpu.gyrozReal);
 
 		pwm_out = upright_pid.out + upright_pid.kp * speed_pid.out;
 		PWMA = pwm_out - turn_pid.out;
 		PWMB = pwm_out + turn_pid.out;
 		Limit(PWMA, PWMB);
-		motor_duty(PWMA, PWMB);
+		MotorSetDuty(PWMA, PWMB);
 	} 
 }
 
@@ -90,7 +91,7 @@ void Balance(void)
  * @retval 无
  * @note 根据Pitch角度和陀螺仪Y轴速度判断，触发停止控制
  */
-void checkLiftState(void)
+void CheckLiftState(void)
 {
     // 拿起条件：角度大且角速度较大，持续一定时间
     if (fabs(mpu.pitch) > LIFT_ANGLE_THRESHOLD && abs(mpu.gyroyReal) > LIFT_GYRO_THRESHOLD && motor_right.encoder > 50)
@@ -101,7 +102,7 @@ void checkLiftState(void)
 			balance_state.lifted_flag = 1;
 			balance_state.balance_enable = 0;
 			balance_state.lifted_counter = 0;
-			stop();
+			MotorStop();
 		}
 	}
 }
@@ -112,7 +113,7 @@ void checkLiftState(void)
  * @retval 无
  * @note 如果Pitch角度小于阈值且静止一段时间，恢复平衡控制
  */
-void detectPutDown(void)
+void DetectPutDown(void)
 {
     if (balance_state.lifted_flag || stop_flag)
     {
@@ -140,12 +141,12 @@ void detectPutDown(void)
  * @retval 无
  * @note 若倾斜角度超过设定阈值，则关闭平衡控制并停止电机
  */
-void checkFallDown(void)
+void CheckFallDown(void)
 {
 	if (fabs(upright_pid.med_angle - mpu.pitch) > 70 && stop_flag == 0)			// 倒地检测
 	{
 		balance_state.balance_enable = 0;
-		stop();
+		MotorStop();
 	}   
 }
  
@@ -160,7 +161,7 @@ static uint8_t obstacle_blocked = 0;  // 是否被障碍物拦住
 void ObstacleAvoid(void)
 {
 	HCSR04_GetValue();
-	if (!obstacle_blocked) Bluetooth();  // 正常蓝牙控制
+	if (!obstacle_blocked) BlueTooth();  // 正常蓝牙控制
 	if(distance > 0 && distance <= 80)
 	{
 		if(!obstacle_blocked && distance < 25.0f) 

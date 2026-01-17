@@ -3,7 +3,7 @@
 static RX_DATA_t rx_data;
 static BT_Command_t bt_cmd;      // 蓝牙命令结构体
 
-void bt_init(void)
+void HC06_Init(void)
 {
 	HAL_UART_Receive_IT(&huart2, &rx_data.data, 1);
 }
@@ -39,7 +39,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
  * @retval 无
  * @note 根据前后左右命令调整目标速度与转向速度
  */
-void Bluetooth(void)
+void BlueTooth(void)
 {
 	/* 蓝牙控制 */
 	if(bt_cmd.forward == 1 && bt_cmd.backward == 0) 		speed_pid.speed += 1;

@@ -8,7 +8,7 @@ Motor_t motor_right = {
 	.encoder = 0
 };
 
-void motor_init(void)
+void Motor_Init(void)
 {
     // 启动PWM输出
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1); // 左电机 PWM
@@ -23,7 +23,7 @@ void motor_init(void)
 
 
 // 设置左轮占空比 duty ∈ [-ARR, ARR]
-void angle_left_duty(int16_t duty)
+static void CarLeftDuty(int16_t duty)
 {
     if (duty >= 0)
     {
@@ -40,7 +40,7 @@ void angle_left_duty(int16_t duty)
 }
 
 // 设置右轮占空比 duty ∈ [-ARR, ARR]
-void angle_right_duty(int16_t duty)
+static void CarRightDuty(int16_t duty)
 {
     if (duty >= 0)
     {
@@ -56,15 +56,15 @@ void angle_right_duty(int16_t duty)
     }
 }
 
-void motor_duty(int16_t dutyL, int16_t dutyR)
+void MotorSetDuty(int16_t dutyL, int16_t dutyR)
 {
-    angle_left_duty(dutyL);
-    angle_right_duty(dutyR);
+    CarLeftDuty(dutyL);
+    CarRightDuty(dutyR);
 }
 
 
 uint8_t stop_flag = 0;
-void stop(void)
+void MotorStop(void)
 {
 	stop_flag = 1;  // 立即设置停止标志
 	DataClear();

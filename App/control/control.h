@@ -1,6 +1,7 @@
 #ifndef _control_h
 #define _control_h
 #include "stdint.h"
+#include "pid.h"
 typedef struct {
     float kp;
     float kd;
@@ -23,15 +24,17 @@ typedef struct {
 	float speed;
 } TurnPID_t; 
 
-float angle_pid_control(float tar, float angle, short gy);
-float speed_pid_control(float x, float speed_tar);
-float turn_pid_control(short gz);
+float AnglePidCtrl(float tar, float angle, short gy);
+float SpeedPidCtrl(float x, float speed_tar);
+float TurnPidCtrl(short gz);
+void DistPidCtrl(void);
+
 void Limit(float PWMA, float PWMB);
-void dist_pid_control(void);
 void DataClear(void);
 
 extern UprightPID_t upright_pid;
 extern SpeedPID_t speed_pid;
 extern TurnPID_t turn_pid;
+extern PID_t dist;
 
 #endif

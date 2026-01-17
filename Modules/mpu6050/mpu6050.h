@@ -60,22 +60,8 @@ typedef struct
     float roll, pitch;
 }MPU_t;
 
-uint8_t mpu6050_write(uint8_t addr, uint8_t reg, uint8_t len, uint8_t* buf);
-uint8_t mpu6050_read(uint8_t addr, uint8_t reg, uint8_t len, uint8_t* buf);
-void mpu6050_write_reg(uint8_t reg, uint8_t dat);
-uint8_t mpu6050_read_reg(uint8_t reg);
-
 void MPU_Init(void);
-float MPU_Get_Temperature(void);
-uint8_t MPU_Get_Gyroscope(int16_t *gx, int16_t *gy, int16_t *gz);
-uint8_t MPU_Get_Accelerometer(int16_t *ax, int16_t *ay, int16_t *az);
 void MPU_Get_Angle(MPU_t *mpu);
-
-
-uint8_t MPU_Set_Gyro_Fsr(uint8_t fsr);
-uint8_t MPU_Set_Accel_Fsr(uint8_t fsr);
-uint8_t MPU_Set_LPF(uint16_t lpf);
-uint8_t MPU_Set_Rate(uint16_t rate);
 
 extern MPU_t mpu;
 
