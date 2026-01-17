@@ -18,8 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f103xb.h"
-#include "stm32f1xx_hal_gpio.h"
+#include "OLED.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -27,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "headfile.h"
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -114,10 +114,9 @@ int main(void)
     	checkLiftState();  										// 提起检测
     	checkFallDown();											// 倒地检测
     	detectPutDown(); 											// 着陆检测
-      Bluetooth();  // 正常蓝牙控制
+      ModeSelect();                         // 模式切换   
     	mpu_data_flag = 0;
     }
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

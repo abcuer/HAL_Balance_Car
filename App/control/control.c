@@ -28,15 +28,15 @@ SpeedPID_t speed_pid = {
 /* 6. 只启用转向环kd, 令 kd为10或者-10，转动其中一只轮子，另一只轮子同向转动，符号正确 */
 /* 7. 同时启用三环，调整参数直到满意为止(转向环不需要大调整) */
 TurnPID_t turn_pid = {
-	.kd = -0.25,
+	.kd = -0.15,
 	/* 左右移动 */
-	.kp = -20, // -35
+	.kp = -15, // -35
 	.out = 0,
 	.speed = 0 
 };
 
 PID_t dist;
-uint16_t distance = 0;         
+        
 // 当前测得的超声波距离值（单位：cm），用于跟随/避障控制逻辑
 static float Encoder_Err, filtered_Err, last_filtered_Err, Encoder_S;
 
@@ -68,8 +68,6 @@ float speed_pid_control(float x, float speed_tar)
 float turn_pid_control(short gz) 
 {
 	return turn_pid.kp * turn_pid.speed - turn_pid.kd * gz;
-	// float pwm_out = turn_pid.kd*gz + turn_pid.kp*turn_pid.speed; 
-	// return pwm_out;
 }
 
 void Limit(float PWMA, float PWMB)
@@ -82,7 +80,7 @@ void Limit(float PWMA, float PWMB)
 
 void dist_pid_control(void)
 {
-	dist.target = 30;
+	dist.target = 70;
 	dist.now = distance;
 	pid_cal(&dist);
 	pidout_limit(&dist);

@@ -1,10 +1,8 @@
 #include "headfile.h"
 #include <stdlib.h>
 
-uint8_t mode = 0;              
-// 当前工作模式编号：0=平衡模式，1=蓝牙遥控，2=超声波跟随
-
-static BalanceState_t balance_state = {
+BalanceState_t balance_state = {
+	.mode = 0,                  // 当前工作模式: 0 平衡模式，1 蓝牙遥控，2 超声波跟随
     .lifted_flag = 0, 			// 提起标志位：1 表示小车被提起，0 表示正常运行
     .putdown_counter = 0,		// 放下计数器
     .lifted_counter = 0,		// 提起计数器
@@ -14,10 +12,56 @@ static BalanceState_t balance_state = {
 static float pwm_out, PWMA, PWMB = 0;
 
 /**
- * @brief 系统初始化函数，初始化所有模块和外设
+ * @brief 模式选择与切换函数，根据按键切换运行模式（平衡、蓝牙、跟随）
  * @param 无
  * @retval 无
+ * @note 会根据当前模式调整PID参数和控制逻辑
  */
+void ModeSelect(void)
+{
+	static uint8_t last_mode = 0xFF;  
+	if(Key_GetNum())
+	{
+		balance_state.mode++;
+		balance_state.mode %= 3;
+	}
+	// 仅当模式发生变化时清除数据
+    if (balance_state.mode != last_mode)
+    {
+        DataClear();
+        last_mode = balance_state.mode;  
+    }
+
+	if(balance_state.mode == 0)  //平衡模式										
+	{
+		speed_pid.kp = 0.7;
+		speed_pid.ki = 0.7/200;
+		// turn_pid.kd = -0.25;
+		Balance_ON(); 
+	}
+	else Balance_OFF();  
+	if(balance_state.mode == 1)  // 遥控模式
+	{
+		speed_pid.kp = 0.7;
+		speed_pid.ki = 0;
+		// turn_pid.kd = 0;
+		BlueTooth_ON();
+		ObstacleAvoid();	
+	}
+	else BlueTooth_OFF();
+	if(balance_state.mode == 2)	// 超声波跟随										
+	{
+		speed_pid.kp = 0.7;
+		speed_pid.ki = 0.7/200;
+		// turn_pid.kd = -0.25;
+		Follow_ON(); 
+		HCSR04_GetValue();
+		if(distance > 0 && distance <= 250)	dist_pid_control(); 
+		else	speed_pid.speed = 0;  
+		// 停止移动，避免无效距离导致继续前进
+	}
+	else Follow_OFF(); 
+}	
 
 /**
  * @brief 平衡控制主函数，DMP读取姿态并计算三环PID，控制小车直立
@@ -28,7 +72,6 @@ void Balance(void)
 {
 	if (balance_state.balance_enable) 					// 默认平衡模式
 	{
-		//ModeSelect();
 		upright_pid.out = angle_pid_control(upright_pid.med_angle, mpu.pitch, mpu.gyroyReal);
 		speed_pid.out = speed_pid_control(speed_pid.filter, speed_pid.speed);
 		turn_pid.out = turn_pid_control(mpu.gyrozReal);
@@ -40,60 +83,6 @@ void Balance(void)
 		motor_duty(PWMA, PWMB);
 	} 
 }
-
-/**
- * @brief 模式选择与切换函数，根据按键切换运行模式（平衡、蓝牙、跟随）
- * @param 无
- * @retval 无
- * @note 会根据当前模式调整PID参数和控制逻辑
- */
-void ModeSelect(void)
-{
-	static uint8_t last_mode = 0xFF;  // 初始化为一个不可能的模式值
-	if(Key_GetNum())
-	{
-		mode++;
-		mode %= 3;
-	}
-	// 仅当模式发生变化时清除数据
-    if (mode != last_mode)
-    {
-        DataClear();
-        last_mode = mode;  // 更新记录
-    }
-	
-	if(mode == 0) 											//平衡模式
-	{
-		speed_pid.kp = -0.58;
-		speed_pid.ki = -0.58/200;
-		Balance_ON(); 
-	}
-	else Balance_OFF();  
-	if(mode == 1)  //蓝牙遥控模式
-	{
-		speed_pid.kp = -0.55;
-		speed_pid.ki = 0;
-		BlueTooth_ON();
-	}
-	else BlueTooth_OFF();
-	if(mode == 2)											// 超声波跟随
-	{
-		speed_pid.kp = -0.5;
-		speed_pid.ki = -0.5/200;
-
-		Follow_ON(); 
-		if(distance > 0 && distance <= 80)
-		{
-			dist_pid_control(); 
-		}
-		else
-		{
-			speed_pid.speed = 0;  // 停止移动，避免无效距离导致继续前进
-		}
-	}
-	else Follow_OFF(); 
-	if(mode == 1) ObstacleAvoid();					// 蓝牙避障检测
-}	
 
 /**
  * @brief 提起检测：检测是否被提起
@@ -127,7 +116,7 @@ void detectPutDown(void)
 {
     if (balance_state.lifted_flag || stop_flag)
     {
-        if (fabs(mpu.pitch) < 10 && abs(mpu.gyroyReal) < 50 && abs(motor_right.encoder) < 50)
+        if (fabs(mpu.pitch) < 20 && abs(mpu.gyroyReal) < 150 && abs(motor_right.encoder) < 120)
         {
             if (balance_state.putdown_counter++ > PUTDOWN_WAIT_COUNT)
             {
@@ -143,6 +132,7 @@ void detectPutDown(void)
         }
     }
 }
+
 
 /**
  * @brief 倒地检测函数
@@ -165,27 +155,22 @@ void checkFallDown(void)
  * @retval 无
  * @note 距离过近则触发声光报警并禁止运动，距离恢复后解除限制
  */
-uint8_t obstacle_blocked = 0;  // 是否被障碍物拦住
+static uint8_t obstacle_blocked = 0;  // 是否被障碍物拦住
 
 void ObstacleAvoid(void)
 {
-//	HCSR04_Read();
-	// OLED_ShowNum(1, 7, distance, 3);
-	if(mode == 1)
+	HCSR04_GetValue();
+	if (!obstacle_blocked) Bluetooth();  // 正常蓝牙控制
+	if(distance > 0 && distance <= 80)
 	{
-		if (!obstacle_blocked) Bluetooth();  // 正常蓝牙控制
-		if(distance > 0 && distance <= 80)
+		if(!obstacle_blocked && distance < 25.0f) 
 		{
-			if(!obstacle_blocked && distance < 25.0f) 
-			{
-				SoundLight();
-				obstacle_blocked = 1;
-			}
-			else if (obstacle_blocked && distance > 60.0f)
-			{
-				obstacle_blocked = 0; // 恢复触发能力
-			}
-			
+			SoundLight();
+			obstacle_blocked = 1;
+		}
+		else if (obstacle_blocked && distance > 50.0f)
+		{
+			obstacle_blocked = 0; // 恢复触发能力
 		}
 	}
 }

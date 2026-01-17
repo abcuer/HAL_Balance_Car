@@ -33,6 +33,5 @@ void DataClear(void);
 extern UprightPID_t upright_pid;
 extern SpeedPID_t speed_pid;
 extern TurnPID_t turn_pid;
-extern uint16_t distance;
 
 #endif

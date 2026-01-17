@@ -1,13 +1,14 @@
-# VScode + STM32CubeMX + Makefile + MSYS2 + Openocd
-
+# VScode + STM32CubeMX + CMake + MSYS2 + Openocd
 # HAL库版本
-## hal库版本存在bug
-- mpu6050与hcsr04无法同时读取
-- hcsr04利用DWT进行测距，精度高，但是无法与HAL_Delay()同时使用
-- 上电时mpu可能读取不到数据，需重新上电/烧录代码
+1. 整体运行速度更快
+2. 各种功能切换得更好
+![前视图](./src/2c66186acd2f387187dd3ee689d3554c.jpg)
+![俯视图](./src/1597536b14526257abb66c83db5a8879.jpg)
+
 ## 功能
 1. 平衡功能
 2. 蓝牙遥控
-3. 倒地检测
-4. 着陆检测
+3. 超声波跟随
+4. 倒地检测
+5. 着陆检测
 5. 提起检测

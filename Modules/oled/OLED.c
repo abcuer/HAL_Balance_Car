@@ -124,6 +124,24 @@ void OLED_Clear_Fast(void)
         OLED_WriteMultiData(zero_data, 128);
     }
 }
+/**
+  * @brief  OLED指定行清屏（使用批量写入）
+  * @param  Line 指定行，范围：1~4
+  * @retval 无
+  */
+void OLED_ClearLine_Fast(uint8_t Line)
+{
+    uint8_t page;
+    uint8_t zero_data[128] = {0};
+
+    if (Line < 1 || Line > 4) return;
+
+    for (page = (Line - 1) * 2; page < (Line - 1) * 2 + 2; page++)
+    {
+        OLED_SetCursor(page, 0);
+        OLED_WriteMultiData(zero_data, 128);
+    }
+}
 
 /**
   * @brief  OLED显示一个字符

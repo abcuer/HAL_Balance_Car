@@ -59,13 +59,13 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define Buzzer_Pin GPIO_PIN_13
 #define Buzzer_GPIO_Port GPIOC
+#define ECHO_Pin GPIO_PIN_14
+#define ECHO_GPIO_Port GPIOC
 #define TRIG_Pin GPIO_PIN_15
 #define TRIG_GPIO_Port GPIOC
 #define MPU_INT_Pin GPIO_PIN_0
 #define MPU_INT_GPIO_Port GPIOA
 #define MPU_INT_EXTI_IRQn EXTI0_IRQn
-#define ECHO_Pin GPIO_PIN_1
-#define ECHO_GPIO_Port GPIOA
 #define Left_IN1_Pin GPIO_PIN_4
 #define Left_IN1_GPIO_Port GPIOA
 #define Left_IN2_Pin GPIO_PIN_5

@@ -5,7 +5,9 @@
 void System_Init(void);
 void SoundLight(void);
 void UpdateSoundLight(void);
+void OLED_Task(void);
 
 extern PID_t dist;
+
 
 #endif

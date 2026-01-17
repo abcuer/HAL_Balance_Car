@@ -1,78 +1,56 @@
 #include "hc_sr04.h"
- 
-#include "tim.h" 
- 
-#define HCSR04_TIM     htim2
-#define HCSR04_TIM_CH  TIM_CHANNEL_2
- 
-//全局变量
-static uint32_t ccr_cnt, period_cnt;//CCR寄存器值，中断次数
-static uint8_t  tri_flag, end_flag; //触发方式标志位，捕获标记位
-static uint16_t count_cnt_sum;   //总的计数值
+#include "tim.h"
+#include "bsp_delay.h"
 
-void hc_sr04_init()
+#define FILTER_SIZE 5
+#define MAX_TIME 30000 
+
+volatile uint16_t Time = 0;          // 超声波计时
+float distance_buffer[FILTER_SIZE];
+uint8_t filter_index = 0;
+uint16_t distance = 0;
+
+void HCSR04_Init(void)
 {
-	__HAL_TIM_CLEAR_FLAG(&HCSR04_TIM,TIM_IT_UPDATE);//清除中断标志位，防止一使能定时器就进入中断
-    HAL_TIM_Base_Start_IT(&HCSR04_TIM);//使能定时器及更新中断
-	HAL_TIM_IC_Start_IT(&HCSR04_TIM, HCSR04_TIM_CH);//使能定时器及捕获中断
-}
- 
-uint16_t get_hcsr04_count()
-{
-	return count_cnt_sum;
+	HAL_TIM_Base_Start_IT(&htim2);
 }
 
-uint16_t get_hcsr04_mm()
+static void HCSR04_Start(void)
 {
-	return count_cnt_sum/58.0f;
+    HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
+    delay_us(10);  
+    HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
+}
+
+static float Filter_Distance(float new_value)
+{
+    distance_buffer[filter_index] = new_value;
+    filter_index = (filter_index + 1) % FILTER_SIZE;
+
+    float sum = 0;
+    for (int i = 0; i < FILTER_SIZE; i++)
+    {
+        sum += distance_buffer[i];
+    }
+    return sum / FILTER_SIZE;
+}
+
+void HCSR04_GetValue(void)
+{
+    HCSR04_Start();
+    delay_us(50); 
+    float raw_distance = ((Time * 0.0001f) * 34000.0f) / 2.0f;
+    Time = 0;
+    distance = Filter_Distance(raw_distance);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	period_cnt++;//中断计数
+    if (htim->Instance == TIM2)
+    {
+        if (HAL_GPIO_ReadPin(ECHO_GPIO_Port, ECHO_Pin) == GPIO_PIN_SET)
+        {
+			if (Time < MAX_TIME) 	Time++;
+        }
+    }
 }
-
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{
-	if(htim == &HCSR04_TIM)
-	{
-		if(tri_flag==0)//上升沿触发时进入(tri_flag  0 上升沿触发 / 1 下降沿触发)
-		{
-			period_cnt=0;//中断次数清零
-			__HAL_TIM_SET_COUNTER(&HCSR04_TIM,0); //计数器清零
-			ccr_cnt=0;//存捕获寄存器获取的值的变量清零
-			__HAL_TIM_SET_CAPTUREPOLARITY(&HCSR04_TIM, HCSR04_TIM_CH, TIM_INPUTCHANNELPOLARITY_FALLING);//改变触发极性-下降沿触发
-			tri_flag=1;
-		}
-		else//下降沿触发时进入
-		{
-			ccr_cnt=__HAL_TIM_GET_COMPARE(&HCSR04_TIM, HCSR04_TIM_CH);//获取捕获寄存器的值
-			__HAL_TIM_SET_CAPTUREPOLARITY(&HCSR04_TIM, HCSR04_TIM_CH, TIM_INPUTCHANNELPOLARITY_RISING);//改变触发极性-上降沿触发
-			tri_flag=0;
-			end_flag=1;//捕获完成标志
-			if(end_flag==1)//结束捕获
-			{
-				count_cnt_sum=period_cnt*65535+(ccr_cnt+1); 	 
-				end_flag=0;		
-			}
-		}
-	}
-} 
-
-/**
-  * @brief   trig引脚发送信号
-  * @param    
-  * @retval  
- **/ 
-void trig_send_pluse(void)
-{
-	uint32_t i;
-	HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
-	for(i=0;i<72*40;i++)
-		__NOP();
-	HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
-}
- 
-     
- 
- 

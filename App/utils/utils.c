@@ -6,19 +6,19 @@ static SoundLight_t sound_light = {
 };
 
 /**
- * @brief 系统初始化函数
+ * @brief 系统初始化函数，初始化所有模块和外设
  * @param 无
  * @retval 无
  */
 void System_Init(void)
 {
-//  DWT_Init();
   MPU_Init();
   motor_init();
   encoder_init();
   OLED_Init();
+  HCSR04_Init();
   bt_init();
-  pid_init(&dist, POSITION_PID, -0.6, 0, 0.1);
+  pid_init(&dist, POSITION_PID, -0.18, -0.18/200, 0);
 }
 
 /**
@@ -55,5 +55,20 @@ void UpdateSoundLight(void)
 			sound_light.flag = 0; 
 		}
         
+    }
+}
+
+void OLED_Task(void)
+{
+    static uint8_t cnt = 0;
+    if (++cnt < 50) return;   // 100Hz / 10 = 10Hz
+    cnt = 0;
+    if(balance_state.mode == 1 || balance_state.mode == 2)
+    {
+        OLED_ShowSignedNum(3, 5, distance, 3);
+    }
+    else if(balance_state.mode == 0)
+    {
+        OLED_ClearLine_Fast(3);
     }
 }
