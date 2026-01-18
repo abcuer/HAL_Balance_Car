@@ -38,30 +38,30 @@ void ModeSelect(void)
 		speed_pid.kp = 0.7;
 		speed_pid.ki = 0.7/200;
 		// turn_pid.kd = -0.25;
-   		SetLed(LED_BALANCE, LED_ON);        
+   		SetLedMode(LED_BALANCE, LED_ON);        
 	}
-	else SetLed(LED_BALANCE, LED_OFF);  
+	else SetLedMode(LED_BALANCE, LED_OFF);  
 	if(balance_state.mode == 1)  // 遥控模式
 	{
 		speed_pid.kp = 0.7;
 		speed_pid.ki = 0;
 		// turn_pid.kd = 0;
-		SetLed(LED_BLUETOOTH, LED_ON); 
+		SetLedMode(LED_BLUETOOTH, LED_ON); 
 		ObstacleAvoid();	
 	}
-	else SetLed(LED_BLUETOOTH, LED_OFF);
+	else SetLedMode(LED_BLUETOOTH, LED_OFF);
 	if(balance_state.mode == 2)	// 超声波跟随										
 	{
 		speed_pid.kp = 0.7;
 		speed_pid.ki = 0.7/200;
 		// turn_pid.kd = -0.25;
-		SetLed(LED_FOLLOW, LED_ON);  
+		SetLedMode(LED_FOLLOW, LED_ON);  
 		HCSR04_GetValue();
 		if(distance > 0 && distance <= 250)	DistPidCtrl(); 
 		else	speed_pid.speed = 0;  
 		// 停止移动，避免无效距离导致继续前进
 	}
-	else SetLed(LED_FOLLOW, LED_OFF);  
+	else SetLedMode(LED_FOLLOW, LED_OFF);  
 }	
 
 /**

@@ -1,3 +1,4 @@
+#include "beep.h"
 #include "headfile.h"
 #include "led.h"
 
@@ -34,8 +35,8 @@ void SoundLight(void)
 {
 	if(sound_light.flag == 0)
 	{
-        SetLed(LED_FOLLOW, LED_ON);
-		SetBeep(BEEP_MAIN, BEEP_ON);
+        SetLedMode(LED_FOLLOW, LED_ON);
+		SetBeepMode(BEEP_SYSTEM, BEEP_ON);
 		sound_light.flag = 1;
 	}
 }
@@ -53,8 +54,8 @@ void UpdateSoundLight(void)
 
 		if(sound_light.time >= 20) 
 		{
-            SetLed(LED_FOLLOW, LED_OFF);
-			SetBeep(BEEP_MAIN, BEEP_OFF);
+            SetLedMode(LED_FOLLOW, LED_OFF);
+	    	SetBeepMode(BEEP_SYSTEM, BEEP_OFF);
 			sound_light.time = 0;
 			sound_light.flag = 0; 
 		}

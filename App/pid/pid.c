@@ -34,12 +34,11 @@ void PidCalucate(PID_t *pid)
 			pid->iout = 0; // 可选：同时清除积分项，防止小误差导致积分累积
 		}
 	}
-
 	// 记录前两次的偏差
 	pid->error[2] = pid->error[1];
 	pid->error[1] = pid->error[0];
 
-	// 输出限幅在外部函数中完成
+	PidOutLimit(pid);
 }
 
 void PidOutLimit(PID_t *pid)

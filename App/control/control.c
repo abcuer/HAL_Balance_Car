@@ -70,24 +70,24 @@ float TurnPidCtrl(short gz)
 	return turn_pid.kp * turn_pid.speed - turn_pid.kd * gz;
 }
 
-void Limit(float PWMA, float PWMB)
-{
-	if(PWMA > limit) PWMA = limit;
-	if(PWMA < -limit) PWMA = -limit;
-	if(PWMB > limit) PWMB = limit;
-	if(PWMB < -limit) PWMB = -limit;
-}
-
 void DistPidCtrl(void)
 {
 	dist.target = 70;
 	dist.now = distance;
 	PidCalucate(&dist);
-	PidOutLimit(&dist);
 	speed_pid.speed = dist.out;
 }
 
 void DataClear(void)
 {
 	Encoder_Err = 0, filtered_Err = 0, last_filtered_Err = 0, Encoder_S = 0;
+}
+
+
+void Limit(float PWMA, float PWMB)
+{
+	if(PWMA > limit) PWMA = limit;
+	if(PWMA < -limit) PWMA = -limit;
+	if(PWMB > limit) PWMB = limit;
+	if(PWMB < -limit) PWMB = -limit;
 }

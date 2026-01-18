@@ -1,57 +1,71 @@
 #include "beep.h"
-#include "gpio.h"
+#include "gpio.h" 
 
-BEEPInstance beep[BEEP_NUM];
+static BEEPInstance beep[BEEP_NUM];
 
 /**
- * @brief 设置蜂鸣器状态
- * @param BEEPType 蜂鸣器类型索引
- * @param mode 蜂鸣器目标状态 (BEEP_ON 或 BEEP_OFF)
+ * @brief 根据当前状态更新GPIO电平
  */
-void SetBeep(uint8_t BEEPType, BEEP_Mode_e mode)
+static void UpdateBeepPinLevel(BEEP_Type_e BeepType)
 {
-    if (BEEPType >= BEEP_NUM) return;  // 添加边界检查
+    BEEPInstance *instance = &beep[BeepType];
+    
+    // 逻辑：如果当前模式为 ON，则输出有效电平；否则输出相反电平
     GPIO_PinState pinState;
-    if (beep[BEEPType].Level) 
-    {
-        pinState = (mode == BEEP_ON) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+    if (instance->RunningParam.CurrentMode == BEEP_ON) {
+        pinState = (instance->StaticParam.ActiveLevel == BEEP_HIGH_LEVEL_ON) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+    } else {
+        pinState = (instance->StaticParam.ActiveLevel == BEEP_HIGH_LEVEL_ON) ? GPIO_PIN_RESET : GPIO_PIN_SET;
     }
-    else
-    {
-        pinState = (mode == BEEP_ON) ? GPIO_PIN_RESET : GPIO_PIN_SET;
-    }
-    HAL_GPIO_WritePin(beep[BEEPType].GPIO_Port, beep[BEEPType].GPIO_Pin, pinState);
+    
+    HAL_GPIO_WritePin(instance->StaticParam.GPIO_Port, instance->StaticParam.GPIO_Pin, pinState);
 }
 
 /**
- * @brief 初始化蜂鸣器实例
- * @param instance 蜂鸣器实例指针
- * @param DevNum 设备编号
+ * @brief 设置蜂鸣器开关状态
  */
-void BeepInit(BEEPInstance *instance, uint8_t DevNum)
+void SetBeepMode(BEEP_Type_e BeepType, BEEP_Mode_e Mode)
 {
-    if (DevNum >= BEEP_NUM) return; 
+    if (BeepType >= BEEP_NUM) return;
     
-    // 复制配置
-    beep[DevNum].GPIO_Port = instance->GPIO_Port;
-    beep[DevNum].GPIO_Pin = instance->GPIO_Pin;
-    beep[DevNum].Level = instance->Level;
-    
-    // 初始化时关闭蜂鸣器
-    SetBeep(DevNum, BEEP_OFF);
+    beep[BeepType].RunningParam.CurrentMode = Mode;
+    UpdateBeepPinLevel(BeepType);
 }
 
 /**
- * @brief 蜂鸣器设备初始化
+ * @brief 翻转蜂鸣器状态（常用于报警鸣叫）
+ */
+static void BeepToggle(BEEP_Type_e BeepType)
+{
+    if (BeepType >= BEEP_NUM) return;
+    
+    BEEP_Mode_e nextMode = (beep[BeepType].RunningParam.CurrentMode == BEEP_ON) ? BEEP_OFF : BEEP_ON;
+    SetBeepMode(BeepType, nextMode);
+}
+
+/**
+ * @brief 单个蜂鸣器内部初始化
+ */
+static void Beep_Init(BeepStaticParam_s *config, BEEP_Type_e BeepType)
+{
+    if (BeepType >= BEEP_NUM) return; 
+    
+    // 复制硬件配置
+    beep[BeepType].StaticParam = *config;
+    // 初始化时保持关闭
+    SetBeepMode(BeepType, BEEP_OFF);
+}
+
+/**
+ * @brief 蜂鸣器设备总初始化
  */
 void BeepDeviceInit(void)
-{
-    BEEPInstance mainBeep =
-    {
-        .GPIO_Port = BEEP_GPIO_Port, 
-        .GPIO_Pin = BEEP_Pin, 
-        .Level = 1  // 假设高电平有效
-    };  
+{ 
+    BeepStaticParam_s config;
+
+    config.GPIO_Port = BEEP_GPIO_Port;
+    config.GPIO_Pin = BEEP_Pin;
+    config.ActiveLevel = BEEP_LOW_LEVEL_ON; 
     
-    BeepInit(&mainBeep, BEEP_MAIN);
+    Beep_Init(&config, BEEP_SYSTEM);
 }
