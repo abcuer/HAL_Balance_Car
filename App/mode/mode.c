@@ -1,3 +1,4 @@
+#include "beep.h"
 #include "headfile.h"
 #include "led.h"
 #include <stdlib.h>
@@ -11,6 +12,7 @@ BalanceState_t balance_state = {
 };
 
 static float pwm_out, PWMA, PWMB = 0;
+static uint8_t obstacle_blocked = 0;  // 是否被障碍物拦住
 
 /**
  * @brief 模式选择与切换函数，根据按键切换运行模式（平衡、蓝牙、跟随）
@@ -25,7 +27,14 @@ void ModeSelect(void)
 	{
 		balance_state.mode++;
 		balance_state.mode %= 3;
-	}
+		SetBeepMode(BEEP_SYSTEM, BEEP_ON);
+	} 
+	else if(balance_state.mode == 1)
+	{
+		if(obstacle_blocked) SetBeepMode(BEEP_SYSTEM, BEEP_ON);
+		else SetBeepMode(BEEP_SYSTEM, BEEP_OFF);
+	} 
+	else SetBeepMode(BEEP_SYSTEM, BEEP_OFF);
 	// 仅当模式发生变化时清除数据
     if (balance_state.mode != last_mode)
     {
@@ -156,22 +165,20 @@ void CheckFallDown(void)
  * @retval 无
  * @note 距离过近则触发声光报警并禁止运动，距离恢复后解除限制
  */
-static uint8_t obstacle_blocked = 0;  // 是否被障碍物拦住
 
 void ObstacleAvoid(void)
 {
 	HCSR04_GetValue();
-	if (!obstacle_blocked) BlueTooth();  // 正常蓝牙控制
-	if(distance > 0 && distance <= 80)
+	BlueTooth();  // 正常蓝牙控制
+	if(distance > 0 && distance <= 150.0f)
 	{
-		if(!obstacle_blocked && distance < 25.0f) 
+		if(!obstacle_blocked && distance < 70.0f) 
 		{
-			SoundLight();
 			obstacle_blocked = 1;
 		}
-		else if (obstacle_blocked && distance > 50.0f)
+		else if (obstacle_blocked && distance > 100.0f)
 		{
-			obstacle_blocked = 0; // 恢复触发能力
+			obstacle_blocked = 0; 
 		}
 	}
 }
