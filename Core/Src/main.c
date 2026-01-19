@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -50,6 +51,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -98,23 +100,31 @@ int main(void)
   System_Init();
   /* USER CODE END 2 */
 
+  /* Call init function for freertos objects (in cmsis_os2.c) */
+  MX_FREERTOS_Init();
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  OLED_ShowString(1, 3, "HAL Update");
-	OLED_ShowString(2, 3, "Balance_Car");
+  // OLED_ShowString(1, 3, "HAL Update");
+	// OLED_ShowString(2, 3, "Balance_Car");
 
   while (1)
   {
-    if(mpu_data_flag)
-    {
-      MPU_Get_Angle(&mpu);
-    	Balance();													  // 主控制逻辑
-    	CheckLiftState();  										// 提起检测
-    	CheckFallDown();											// 倒地检测
-    	DetectPutDown(); 											// 着陆检测
-      ModeSelect();                         // 模式切换   
-    	mpu_data_flag = 0;
-    }
+  //   if(mpu_data_flag)
+  //   {
+  //     MPU_Get_Angle(&mpu);
+  //   	Balance();													  // 主控制逻辑
+  //   	CheckLiftState();  										// 提起检测
+  //   	CheckFallDown();											// 倒地检测
+  //   	DetectPutDown(); 											// 着陆检测
+  //     ModeSelect();                         // 模式切换   
+  //   	mpu_data_flag = 0;
+  //   }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -163,24 +173,6 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-    if (GPIO_Pin == GPIO_PIN_0) // MPU_INT引脚PA0
-    {
-      mpu_data_flag = 1;
-    }
-}
-// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-// {
-    // if(htim == &htim2)
-    // {
-    //   UpdateSoundLight();
-    // }
-    // if(htim == &htim2)
-    // {
-    //   UpdateSoundLight();
-    // }
-// }
 /* USER CODE END 4 */
 
 /**
