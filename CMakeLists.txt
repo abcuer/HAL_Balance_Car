@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 # 设置项目名称
-set(CMAKE_PROJECT_NAME STM32_Balance_Car)
+set(CMAKE_PROJECT_NAME RTOS_Balance_Car)
 
 # 设置 C 标准
 set(CMAKE_C_STANDARD 11)

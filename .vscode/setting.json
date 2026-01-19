@@ -6,7 +6,7 @@
     "clangd.logLevel": "info",
     "clangd.arguments": [
         "--background-index",
-        "--compile-commands-dir=D:\\MCU\\1_STM32\\Project\\begin\\build",
+        "--compile-commands-dir=D:\\MCU\\1_STM32\\Project\\RTOS_Balance_Car\\build",
         "--header-filter=.*"
     ],
     "clangd.debug": true
