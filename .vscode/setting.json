@@ -6,7 +6,7 @@
     "clangd.logLevel": "info",
     "clangd.arguments": [
         "--background-index",
-        "--compile-commands-dir=D:\\MCU\\1_STM32\\Project\\STM32_Balance_Car\\build",
+        "--compile-commands-dir=D:\\MCU\\1_STM32\\Project\\HAL_Balance_Car\\build",
         "--header-filter=.*"
     ],
     "clangd.debug": true
