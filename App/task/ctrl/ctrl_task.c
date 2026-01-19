@@ -13,6 +13,7 @@ void CtrlTask(void const * argument)
             CheckLiftState();  										    // 提起检测
             CheckFallDown();										    // 倒地检测
             DetectPutDown(); 		                                    // 着陆检测
+            ModeSelect();  
         }	
     }					
 }

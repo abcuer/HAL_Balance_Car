@@ -41,39 +41,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
  */
 void BlueTooth(void)
 {
-	/* 蓝牙控制 */
-	if(bt_cmd.forward == 1 && bt_cmd.backward == 0) 		speed_pid.speed += 1;
-	else if(bt_cmd.backward == 1 && bt_cmd.forward == 0)    speed_pid.speed -= 1;
-	else if(bt_cmd.forward == 0 && bt_cmd.backward == 0) 	speed_pid.speed = 0;
-	
-	if(bt_cmd.left == 1 && bt_cmd.right == 0)				turn_pid.speed -= 2; 
-	else if(bt_cmd.right == 1 && bt_cmd.left == 0) 			turn_pid.speed += 2;
-	else if(bt_cmd.left == 0 && bt_cmd.right == 0)			turn_pid.speed = 0; 
-	
-	if(bt_cmd.forward && bt_cmd.left && bt_cmd.backward == 0 && bt_cmd.right == 0)
-	{
-		speed_pid.speed += 0.3;  turn_pid.speed += 2.5; 
-	}
-	else if(bt_cmd.forward && bt_cmd.right && bt_cmd.backward == 0 && bt_cmd.left == 0)
-	{
-		speed_pid.speed += 0.4;  turn_pid.speed -= 2.5;
-	}
-	else if(bt_cmd.backward && bt_cmd.left && bt_cmd.forward == 0 && bt_cmd.right == 0)
-	{
-		speed_pid.speed -= 0.4;	 turn_pid.speed += 2.5; 
-	}
-	else if(bt_cmd.backward && bt_cmd.right && bt_cmd.forward == 0 && bt_cmd.left == 0)
-	{
-		speed_pid.speed -= 0.2;	 turn_pid.speed = 2.5;
-	}
-	if(bt_cmd.forward == 0 && bt_cmd.backward == 0 && bt_cmd.left == 0 && bt_cmd.right == 0)
-	{
-		speed_pid.speed = 0; 
-		turn_pid.speed = 0;
-	}
-	
-	if(speed_pid.speed >= MAX_Speed) 			speed_pid.speed = MAX_Speed;
-	else if(speed_pid.speed <= -MAX_Speed) 	    speed_pid.speed = -MAX_Speed;
-	if(turn_pid.speed >= MAX_Turn) 				turn_pid.speed = MAX_Turn;
-	else if(turn_pid.speed <= -MAX_Turn) 		turn_pid.speed = -MAX_Turn;
+    // 1. 优先判断组合指令（只有这样组合键才会生效）
+    if(bt_cmd.forward && bt_cmd.left)        { speed_pid.speed = MAX_Speed-10;  turn_pid.speed = MAX_Turn; }
+    else if(bt_cmd.forward && bt_cmd.right)  { speed_pid.speed = MAX_Speed+10;  turn_pid.speed = -MAX_Turn;  }
+    else if(bt_cmd.backward && bt_cmd.left)  { speed_pid.speed = -MAX_Speed+10; turn_pid.speed = -MAX_Turn; }
+    else if(bt_cmd.backward && bt_cmd.right) { speed_pid.speed = -MAX_Speed-10; turn_pid.speed = MAX_Turn;  }
+    
+    // 2. 再判断单一方向指令
+    else if(bt_cmd.forward)  { speed_pid.speed = MAX_Speed+3;  turn_pid.speed = 0; }
+    else if(bt_cmd.backward) { speed_pid.speed = -MAX_Speed-3; turn_pid.speed = 0; }
+    else if(bt_cmd.left)     { speed_pid.speed = 0;          turn_pid.speed = -25; }
+    else if(bt_cmd.right)    { speed_pid.speed = 0;          turn_pid.speed = 25;  }
+    else 
+    {
+        speed_pid.speed = 0;
+        turn_pid.speed = 0;
+    }
 }

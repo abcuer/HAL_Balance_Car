@@ -24,6 +24,7 @@ void System_Init(void)
     HCSR04_Init();
     HC06_Init();
     PID_Init(&dist, POSITION_PID, -0.18, -0.18/200, 0);
+    delay_ms(10);
 }
 
 /**

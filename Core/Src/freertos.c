@@ -18,14 +18,14 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include "FreeRTOS.h"
+#include "task.h"
+#include "main.h"
 #include "cmsis_os.h"
-#include "ctrl_task.h"
-#include "mode_switch.h"
-#include "ui_task.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ctrl_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +46,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 osThreadId ctrlTaskHandle;
-osThreadId modeTaskHandle;
 osThreadId uiTaskHandle;
 
 osSemaphoreId BinarySem_MPUHandle;
@@ -125,20 +124,6 @@ void MX_FREERTOS_Init(void) {
 
   osThreadDef(CtrlTask, CtrlTask, osPriorityRealtime, 0, 128);
   ctrlTaskHandle = osThreadCreate(osThread(CtrlTask), NULL);
-
-  osThreadDef(ModeSwitchTask, ModeSwitchTask, osPriorityHigh, 0, 128);
-  modeTaskHandle = osThreadCreate(osThread(ModeSwitchTask), NULL);
-
-  // osThreadDef(UITask, UITask, osPriorityNormal, 0, 128);
-  // uiTaskHandle = osThreadCreate(osThread(UITask), NULL);
-  
-
-  
-  // osThreadDef(nrf_task, nrf_task, osPriorityHigh, 0, 128);
-  // nrfTaskHandle = osThreadCreate(osThread(nrf_task), NULL);
-  
-  // osThreadDef(esp_task, esp_task, osPriorityHigh, 0, 128);
-  // espTaskHandle = osThreadCreate(osThread(esp_task), NULL);
   /* USER CODE END RTOS_THREADS */
 
 }

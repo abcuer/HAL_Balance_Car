@@ -26,6 +26,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 # 彩色诊断
 set(CMAKE_COLOR_DIAGNOSTICS ON)
+
 # 包含工具链文件（必须在 project() 前设置编译器）
 include("cmake/gcc-arm-none-eabi.cmake")
 # include("cmake/gcc-arm-none-eabi.cmake")
@@ -74,7 +75,6 @@ USER_ADD_DIR(${CMAKE_SOURCE_DIR}/App/pid)
 USER_ADD_DIR(${CMAKE_SOURCE_DIR}/App/utils)
 USER_ADD_DIR(${CMAKE_SOURCE_DIR}/App/task)
 USER_ADD_DIR(${CMAKE_SOURCE_DIR}/App/task/ctrl)
-USER_ADD_DIR(${CMAKE_SOURCE_DIR}/App/task/mode_switch)
 USER_ADD_DIR(${CMAKE_SOURCE_DIR}/App/task/ui)
 USER_ADD_DIR(${CMAKE_SOURCE_DIR}/App/task)
 USER_ADD_DIR(${CMAKE_SOURCE_DIR}/App/task)

@@ -12,7 +12,7 @@ BalanceState_t balance_state = {
 };
 
 static float pwm_out, PWMA, PWMB = 0;
-static uint8_t obstacle_blocked = 0;  // 是否被障碍物拦住
+uint8_t obstacle_blocked = 0;  // 是否被障碍物拦住
 
 /**
  * @brief 模式选择与切换函数，根据按键切换运行模式（平衡、蓝牙、跟随）
@@ -46,7 +46,6 @@ void ModeSelect(void)
 	{
 		speed_pid.kp = 0.7;
 		speed_pid.ki = 0.7/200;
-		// turn_pid.kd = -0.25;
    		SetLedMode(LED_BALANCE, LED_ON);        
 	}
 	else SetLedMode(LED_BALANCE, LED_OFF);  
@@ -54,21 +53,17 @@ void ModeSelect(void)
 	{
 		speed_pid.kp = 0.7;
 		speed_pid.ki = 0;
-		// turn_pid.kd = 0;
 		SetLedMode(LED_BLUETOOTH, LED_ON); 
-		ObstacleAvoid();	
+		BlueTooth();  // 正常蓝牙控制
+		ObstacleAvoid();
 	}
 	else SetLedMode(LED_BLUETOOTH, LED_OFF);
 	if(balance_state.mode == 2)	// 超声波跟随										
 	{
 		speed_pid.kp = 0.7;
-		speed_pid.ki = 0.7/200;
-		// turn_pid.kd = -0.25;
+		speed_pid.ki = 0;
 		SetLedMode(LED_FOLLOW, LED_ON);  
 		HCSR04_GetValue();
-		if(distance > 0 && distance <= 250)	DistPidCtrl(); 
-		else	speed_pid.speed = 0;  
-		// 停止移动，避免无效距离导致继续前进
 	}
 	else SetLedMode(LED_FOLLOW, LED_OFF);  
 }	
@@ -82,6 +77,11 @@ void Balance(void)
 {
 	if (balance_state.balance_enable) 					// 默认平衡模式
 	{
+		if(balance_state.mode == 2)
+		{
+			if(distance > 10 && distance <= 250)	DistPidCtrl(); 
+			else	speed_pid.speed = 0;  
+		}
 		upright_pid.out = AnglePidCtrl(upright_pid.med_angle, mpu.pitch, mpu.gyroyReal);
 		speed_pid.out = SpeedPidCtrl(speed_pid.filter, speed_pid.speed);
 		turn_pid.out = TurnPidCtrl(mpu.gyrozReal);
@@ -169,16 +169,15 @@ void CheckFallDown(void)
 void ObstacleAvoid(void)
 {
 	HCSR04_GetValue();
-	BlueTooth();  // 正常蓝牙控制
 	if(distance > 0 && distance <= 150.0f)
 	{
-		if(!obstacle_blocked && distance < 70.0f) 
+		if(!obstacle_blocked && distance < 70.0f) 	
 		{
 			obstacle_blocked = 1;
-		}
-		else if (obstacle_blocked && distance > 100.0f)
+		}		
+		else if (obstacle_blocked && distance > 100.0f)	
 		{
 			obstacle_blocked = 0; 
-		}
+		}	
 	}
 }

@@ -30,5 +30,6 @@ typedef struct {
 } BalanceState_t;
 
 extern BalanceState_t balance_state;
+extern uint8_t obstacle_blocked;
 
 #endif

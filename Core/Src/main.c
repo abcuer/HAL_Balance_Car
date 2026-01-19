@@ -98,6 +98,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   System_Init();
+  OLED_ShowString(1, 3, "HAL Update");
+	OLED_ShowString(2, 3, "Balance_Car");
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
@@ -110,8 +112,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  // OLED_ShowString(1, 3, "HAL Update");
-	// OLED_ShowString(2, 3, "Balance_Car");
+
 
   while (1)
   {
