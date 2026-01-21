@@ -1,24 +1,22 @@
 #include "headfile.h"
 
-#define limit 19000
-
 /* 直立环 */
 /* 1. 只启用直立环kp, 调整 kp 到小车高频振荡 */
 /* 2. 只启用直立环kp、ki, 调整 ki 到小车高频低幅振荡 */
 /* 3. 将kp、ki都乘上 0.6 ,调整速度环 */
 PIDParam_t upright_pid = {
-    .kp = 260*0.6,
-    .kd = -20*0.6,
+    .kp = 360*0.6,
+    .kd = -28*0.6, 
 	.out = 0,
-    .tar = 0.5
+    .tar = 0.65
 };
 
 /* 速度环 */
 /* 4. 只启用直立环和速度环kp, 调整 kp 到小车平稳 */
 /* 5. ki = kp/200 */
 PIDParam_t speed_pid = {
-	.kp = 0.7,  			
-	.ki = 0.7/200,		
+	.kp = 0.6,  			
+	.ki = 0.6/200,		
 	.out = 0,
 	.filter = 0.7,
 	.tar = 0  /* 前进 后退 */
@@ -28,17 +26,17 @@ PIDParam_t speed_pid = {
 /* 6. 只启用转向环kd, 令 kd为10或者-10，转动其中一只轮子，另一只轮子同向转动，符号正确 */
 /* 7. 同时启用三环，调整参数直到满意为止(转向环不需要大调整) */
 PIDParam_t turn_pid = {
-	.kd = -0.2,	/* 左右移动 */
-	.kp = -30, 	/* 遥控模式下的转向速度 */
+	.kd = -0.28,	/* 左右移动 */
+	.kp = -25, 	/* 遥控模式下的转向速度 */
 	.out = 0,
 	.tar = 0
 };
 
 PIDParam_t dist_pid = {
-	.kp = -0.18,				
-	.ki = -0.18/200,			
+	.kp = -0.12,				
+	.ki = -0.12/200,			
 	.out = 0,
-	.tar = 70
+	.tar = 140
 };
 
 PID_t dist;
@@ -90,8 +88,8 @@ void DataClear(void)
 
 void PWMLimit(float PWMA, float PWMB)
 {
-	if(PWMA > limit) PWMA = limit;
-	if(PWMA < -limit) PWMA = -limit;
-	if(PWMB > limit) PWMB = limit;
-	if(PWMB < -limit) PWMB = -limit;
+	if(PWMA > MAXPWM) PWMA = MAXPWM;
+	if(PWMA < -MAXPWM) PWMA = -MAXPWM;
+	if(PWMB > MAXPWM) PWMB = MAXPWM;
+	if(PWMB < -MAXPWM) PWMB = -MAXPWM;
 }

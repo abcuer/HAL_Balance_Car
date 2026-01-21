@@ -2,6 +2,9 @@
 #define _control_h
 #include "stdint.h"
 #include "pid.h"
+
+#define MAXPWM 19000
+
 typedef struct {
     float kp, kd, ki;
     float tar, current;

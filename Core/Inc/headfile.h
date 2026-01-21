@@ -11,7 +11,6 @@
 #include "usart.h"
 
 /***************** Bsp ****************/
-#include "bsp_timer.h"
 #include "bsp_gpio.h"
 #include "bsp_iic.h"
 #include "bsp_delay.h"

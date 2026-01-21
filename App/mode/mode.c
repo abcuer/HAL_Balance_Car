@@ -42,26 +42,24 @@ void ModeSelect(void)
 
 	if(balance_state.mode == 0)  //平衡模式										
 	{
-		speed_pid.kp = 0.7;
-		speed_pid.ki = 0.7/200;
-		// turn_pid.kd = -0.25;
+		speed_pid.kp = 0.6;
+		speed_pid.ki = 0.6/200;
    		SetLedMode(LED_BALANCE, LED_ON);        
 	}
 	else SetLedMode(LED_BALANCE, LED_OFF);  
 	if(balance_state.mode == 1)  // 遥控模式
 	{
-		speed_pid.kp = 0.7;
+		speed_pid.kp = 0.6;
 		speed_pid.ki = 0;
-		// turn_pid.kd = 0;
 		SetLedMode(LED_BLUETOOTH, LED_ON); 
-		ObstacleAvoid();	
+		BlueTooth();  // 正常蓝牙控制
+		ObstacleAvoid();
 	}
 	else SetLedMode(LED_BLUETOOTH, LED_OFF);
 	if(balance_state.mode == 2)	// 超声波跟随										
 	{
-		speed_pid.kp = 0.7;
-		speed_pid.ki = 0.7/200;
-		// turn_pid.kd = -0.25;
+		speed_pid.kp = 0.6;
+		speed_pid.ki = 0;
 		SetLedMode(LED_FOLLOW, LED_ON);  
 		HCSR04_GetValue();
 	}
@@ -77,8 +75,11 @@ void Balance(void)
 {
 	if (balance_state.balance_enable) 					// 默认平衡模式
 	{
-		if(distance > 0 && distance <= 250)		DistPidCtrl(); 
-		else	speed_pid.tar = 0;  
+		if(balance_state.mode == 2)
+		{
+			if(distance > 0 && distance <= 300)	DistPidCtrl(); 
+			else	speed_pid.tar = 0;  
+		}
 		upright_pid.out = AnglePidCtrl(upright_pid.tar, mpu.pitch, mpu.gyroyReal);
 		speed_pid.out = SpeedPidCtrl(speed_pid.filter, speed_pid.tar);
 		turn_pid.out = TurnPidCtrl(mpu.gyrozReal);
@@ -90,7 +91,6 @@ void Balance(void)
 		MotorSetDuty(PWMA, PWMB);
 	} 
 }
-
 /**
  * @brief 提起检测：检测是否被提起
  * @param 无
@@ -123,14 +123,14 @@ void DetectPutDown(void)
 {
     if (balance_state.lifted_flag || stop_flag)
     {
-        if (fabs(mpu.pitch) < 20 && abs(mpu.gyroyReal) < 150 && abs(motor_right.encoder) < 120)
+        if (fabs(mpu.pitch) < 20 && abs(mpu.gyro[1]) < 150 && abs(motor_right.encoder) < 120)
         {
             if (balance_state.putdown_counter++ > 30)
             {
 				balance_state.lifted_flag = 0;
 				balance_state.putdown_counter = 0;
 				balance_state.balance_enable = 1; 
-				stop_flag = 0;           // 清除紧急停止标志
+				stop_flag = 0;           // Çå³ý½ô¼±Í£Ö¹±êÖ¾
             }
         }
         else
@@ -139,8 +139,6 @@ void DetectPutDown(void)
         }
     }
 }
-
-
 /**
  * @brief 倒地检测函数
  * @param 无

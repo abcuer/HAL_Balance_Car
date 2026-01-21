@@ -30,7 +30,7 @@
 - [1*4p 1*8p 1*20p排母 ￥7](https://e.tb.cn/h.6FZKytSz8cwDzKC?tk=oqIVVkAIaMW)
 - [1*2p排针 ￥2.3]( https://e.tb.cn/h.6FZsiVNPa38YEo6?tk=emUCVkAHc1w )
 
-![前视图](./src/7a1b74cef987346cb069695975bb60c.jpg)
-![俯视图](./src/e7bc3cd2b40d70d83f9f5210f651f61.jpg)
+![前视图](./src/1597536b14526257abb66c83db5a8879.jpg)
+![俯视图](./src/2c66186acd2f387187dd3ee689d3554c.jpg)
 ![后视图](./src/3dd9fb143a53159b16f8972a5833be3.jpg)
 ![PCB](./src/0a053a80354407da4dd48eb7ba30a58.jpg)
