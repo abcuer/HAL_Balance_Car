@@ -1,6 +1,6 @@
 #include "key.h"
+#include "bsp_gpio.h"
 #include "gpio.h"
-#include <string.h>
 
 static KEYInstance key[KEY_NUM];
 
@@ -23,10 +23,11 @@ static void Key_Init(KeyStaticParam_s *config, KEY_Type_e KeyType)
 {
     if (KeyType >= KEY_NUM) return;
     
-    // 复制静态配置
+    // 1. 复制静态配置
     key[KeyType].StaticParam = *config;
+    GPIO_Input(config->GPIO_Port, config->GPIO_Pin, GPIO_MODE_INPUT);
     
-    // 初始化运行参数
+    // 3. 初始化运行参数
     key[KeyType].RunningParam.LastState = KEY_RELEASED;
     key[KeyType].RunningParam.LastTick = 0;
 }
@@ -41,7 +42,7 @@ void KeyDeviceInit(void)
     // USER KEY 配置
     config.GPIO_Port = KEY_GPIO_Port;
     config.GPIO_Pin = KEY_Pin;
-    config.PressLevel = KEY_LOW_LEVEL_PRESS; 
+    config.PressLevel = KEY_LOW_LEVEL_PRESS; // 假设低电平按下
     config.Mode = KEY_MODE_NORMAL;
     Key_Init(&config, KEY_USER);
 }
@@ -59,7 +60,10 @@ uint8_t Key_GetNum(KEY_Type_e KeyType)
     uint8_t key_event = 0;
     if (currentState == KEY_PRESSED && instance->RunningParam.LastState == KEY_RELEASED)
     {
-        key_event = 1;
+        if (GetKeyState(KeyType) == KEY_PRESSED)
+        {
+            key_event = 1;
+        }
     }
     instance->RunningParam.LastState = currentState;
     return key_event;

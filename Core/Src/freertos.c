@@ -46,7 +46,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 osThreadId ctrlTaskHandle;
-osThreadId uiTaskHandle;
 
 osSemaphoreId BinarySem_MPUHandle;
 osSemaphoreDef(BinarySem_MPU); 

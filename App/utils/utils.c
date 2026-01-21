@@ -23,7 +23,7 @@ void System_Init(void)
     OLED_Init();
     HCSR04_Init();
     HC06_Init();
-    PID_Init(&dist, POSITION_PID, -0.18, -0.18/200, 0);
+    PID_Init(&dist, POSITION_PID, dist_pid.kp, dist_pid.ki, dist_pid.kd);
     delay_ms(10);
 }
 

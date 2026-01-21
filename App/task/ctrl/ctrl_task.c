@@ -1,5 +1,6 @@
 #include "ctrl_task.h"
 #include "mode.h"
+#include "mpu6050.h"
 
 void CtrlTask(void const * argument)
 {

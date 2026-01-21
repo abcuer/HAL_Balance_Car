@@ -1,4 +1,5 @@
 #include "beep.h"
+#include "bsp_gpio.h"
 #include "gpio.h" 
 
 static BEEPInstance beep[BEEP_NUM];
@@ -52,6 +53,7 @@ static void Beep_Init(BeepStaticParam_s *config, BEEP_Type_e BeepType)
     
     // 复制硬件配置
     beep[BeepType].StaticParam = *config;
+    GPIO_Output(config->GPIO_Port, config->GPIO_Pin, BSP_GPIO_SPEED_LOW);
     // 初始化时保持关闭
     SetBeepMode(BeepType, BEEP_OFF);
 }
