@@ -1,7 +1,5 @@
-#include "beep.h"
 #include "headfile.h"
-#include "led.h"
-#include <stdlib.h>
+#include "mode.h"
 
 BalanceState_t balance_state = {
 	.mode = 0,                  // 当前工作模式: 0 平衡模式，1 蓝牙遥控，2 超声波跟随
@@ -66,9 +64,6 @@ void ModeSelect(void)
 		// turn_pid.kd = -0.25;
 		SetLedMode(LED_FOLLOW, LED_ON);  
 		HCSR04_GetValue();
-		if(distance > 0 && distance <= 250)	DistPidCtrl(); 
-		else	speed_pid.speed = 0;  
-		// 停止移动，避免无效距离导致继续前进
 	}
 	else SetLedMode(LED_FOLLOW, LED_OFF);  
 }	
@@ -82,14 +77,16 @@ void Balance(void)
 {
 	if (balance_state.balance_enable) 					// 默认平衡模式
 	{
-		upright_pid.out = AnglePidCtrl(upright_pid.med_angle, mpu.pitch, mpu.gyroyReal);
-		speed_pid.out = SpeedPidCtrl(speed_pid.filter, speed_pid.speed);
+		if(distance > 0 && distance <= 250)		DistPidCtrl(); 
+		else	speed_pid.tar = 0;  
+		upright_pid.out = AnglePidCtrl(upright_pid.tar, mpu.pitch, mpu.gyroyReal);
+		speed_pid.out = SpeedPidCtrl(speed_pid.filter, speed_pid.tar);
 		turn_pid.out = TurnPidCtrl(mpu.gyrozReal);
 
 		pwm_out = upright_pid.out + upright_pid.kp * speed_pid.out;
 		PWMA = pwm_out - turn_pid.out;
 		PWMB = pwm_out + turn_pid.out;
-		Limit(PWMA, PWMB);
+		PWMLimit(PWMA, PWMB);
 		MotorSetDuty(PWMA, PWMB);
 	} 
 }
@@ -103,7 +100,7 @@ void Balance(void)
 void CheckLiftState(void)
 {
     // 拿起条件：角度大且角速度较大，持续一定时间
-    if (fabs(mpu.pitch) > LIFT_ANGLE_THRESHOLD && abs(mpu.gyroyReal) > LIFT_GYRO_THRESHOLD && motor_right.encoder > 50)
+    if (fabs(mpu.pitch) > 40.0f && abs(mpu.gyroyReal) > 150 && motor_right.encoder > 50)
 	{
 		balance_state.lifted_counter++;
 		if (balance_state.lifted_counter > 30)
@@ -128,7 +125,7 @@ void DetectPutDown(void)
     {
         if (fabs(mpu.pitch) < 20 && abs(mpu.gyroyReal) < 150 && abs(motor_right.encoder) < 120)
         {
-            if (balance_state.putdown_counter++ > PUTDOWN_WAIT_COUNT)
+            if (balance_state.putdown_counter++ > 30)
             {
 				balance_state.lifted_flag = 0;
 				balance_state.putdown_counter = 0;
@@ -152,7 +149,7 @@ void DetectPutDown(void)
  */
 void CheckFallDown(void)
 {
-	if (fabs(upright_pid.med_angle - mpu.pitch) > 70 && stop_flag == 0)			// 倒地检测
+	if (fabs(upright_pid.tar - mpu.pitch) > 70 && stop_flag == 0)			// 倒地检测
 	{
 		balance_state.balance_enable = 0;
 		MotorStop();

@@ -2,8 +2,8 @@
 #define _hc06_h
 #include "stdint.h"
 
-#define MAX_Speed 24
-#define MAX_Turn 20
+#define MAX_Speed 25
+#define MAX_Turn 36
 
 typedef struct
 {

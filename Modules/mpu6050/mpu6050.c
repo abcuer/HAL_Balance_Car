@@ -1,11 +1,14 @@
-#include "MPU6050.h"
+#include "mpu6050.h"
+#include "filter.h"
 #include "bsp_iic.h"
+#include "bsp_delay.h"
+#include <main.h>
 #include <stdint.h>
 
 MPU_t mpu;
 
 // 定义MPU6050的总线实例
-iic_bus_t mpu6050_bus = {
+static iic_bus_t mpu6050_bus = {
     .IIC_SDA_PORT = GPIOB,
     .IIC_SDA_PIN = GPIO_PIN_11,
     .IIC_SCL_PORT = GPIOB,

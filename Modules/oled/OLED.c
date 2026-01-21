@@ -1,9 +1,10 @@
 #include "oled.h"
 #include "oled_font.h"
 #include "bsp_delay.h"
+#include "bsp_iic.h"
 
 // 定义OLED的I2C总线结构体
-iic_bus_t oled_bus = {
+static iic_bus_t oled_bus = {
     .IIC_SDA_PORT = GPIOB,
     .IIC_SDA_PIN = GPIO_PIN_13,
     .IIC_SCL_PORT = GPIOB,

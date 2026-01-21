@@ -1,6 +1,6 @@
 #include "key.h"
+#include "bsp_gpio.h"
 #include "gpio.h"
-#include <string.h>
 
 static KEYInstance key[KEY_NUM];
 
@@ -23,10 +23,11 @@ static void Key_Init(KeyStaticParam_s *config, KEY_Type_e KeyType)
 {
     if (KeyType >= KEY_NUM) return;
     
-    // 复制静态配置
+    // 1. 复制静态配置
     key[KeyType].StaticParam = *config;
+    GPIO_Input(config->GPIO_Port, config->GPIO_Pin, GPIO_MODE_INPUT);
     
-    // 初始化运行参数
+    // 3. 初始化运行参数
     key[KeyType].RunningParam.LastState = KEY_RELEASED;
     key[KeyType].RunningParam.LastTick = 0;
 }

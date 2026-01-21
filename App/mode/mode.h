@@ -5,11 +5,6 @@
 #include "control.h"
 #include "mpu6050.h"
 
-#define LIFT_ANGLE_THRESHOLD  40.0f    // Pitch 大于这个角度判断为拿起
-#define LIFT_GYRO_THRESHOLD   150       // 陀螺仪 y 轴角速度
-#define PUTDOWN_ANGLE_THRESHOLD 20.0f  // Pitch 小于这个角度认为可能已放下
-#define PUTDOWN_WAIT_COUNT    30       // 放下后静止时间（例如 50 * 5ms = 250ms）
-
 void Balance(void);
 void ModeSelect(void);
 void CheckLiftState(void);

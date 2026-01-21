@@ -1,14 +1,7 @@
 #ifndef _MPU6050_H_
 #define _MPU6050_H_
 
-#include "bsp_iic.h"
-#include "bsp_delay.h"
 #include <stdint.h>
-#include "math.h"
-#include "filter.h"
-
-// I2C总线定义
-extern iic_bus_t mpu6050_bus;
 
 #define	MPU_ADDR		0x68	// MPU6050 I2C地址
 // MPU6050寄存器地址

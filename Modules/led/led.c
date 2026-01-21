@@ -1,6 +1,7 @@
 #include "led.h"
+#include "bsp_gpio.h"
 #include "gpio.h"
-#include <string.h>
+
 static LEDInstance led[LED_NUM];
 
 /**
@@ -29,6 +30,8 @@ static void UpdatePinLevel(LED_Type_e LedType)
  */
 void SetLedMode(LED_Type_e LedType, LED_Mode_e Mode)
 {
+	if (LedType >= LED_NUM) return;
+
     led[LedType].RunningParam.CurrentMode = Mode;
     // 更新GPIO电平
     UpdatePinLevel(LedType);
@@ -39,6 +42,7 @@ static void Led_Init(LedStaticParam_s *config, LED_Type_e LedType)
     if (LedType >= LED_NUM) return; 
     // 复制配置
     led[LedType].StaticParam = *config;
+	GPIO_Output(config->GPIO_Port, config->GPIO_Pin, BSP_GPIO_SPEED_LOW);
     // 初始化时关闭LED
     SetLedMode(LedType, LED_OFF);
 }
